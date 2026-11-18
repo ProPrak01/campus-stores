@@ -1,5 +1,7 @@
+import { dueStatus } from "@campus/shared";
 import type {
   AppState,
+  DueOption,
   Asset,
   EquipmentRequest,
   HandoverLine,
@@ -49,6 +51,11 @@ const openCount = (s: AppState, requestId: string, type: string): number =>
 const handedOutCount = (s: AppState, requestId: string, type: string): number =>
   s.loans.filter((l) => l.requestId === requestId && typeOf(s, l.assetId) === type).length;
 
+/** Return times are picked from the desk's list, so every due time can be compared with the clock. */
+const resolveDue = (s: AppState, label: string): DueOption =>
+  s.dueOptions.find((d) => d.label === label) ??
+  fail(422, `"${label}" is not a return time the desk offers. Choose one from the list.`);
+
 const nextNum = (s: AppState): number => Math.max(400, ...s.loans.map((l) => l.num)) + 1;
 
 // ---- commands (each mutates the clone it is given) -----------------------
@@ -87,13 +94,17 @@ export function issue(s: AppState, input: IssueInput): Loan {
       `${input.collectedBy} is not authorized to collect for ${req.id} (${req.club}). Add them as a collector first.`,
     );
 
+  const due = input.dueLabel?.trim()
+    ? resolveDue(s, input.dueLabel.trim())
+    : { label: req.dueLabel, at: req.dueAt };
   const loan: Loan = {
     num: nextNum(s),
     requestId: req.id,
     assetId: asset.id,
     collectedBy: input.collectedBy,
     holder: input.collectedBy,
-    dueLabel: input.dueLabel?.trim() || req.dueLabel,
+    dueLabel: due.label,
+    dueAt: due.at,
     returned: false,
     history: [
       { kind: "issued", phase: s.phase, by: "Desk", text: `Issued to ${input.collectedBy}` },
@@ -173,15 +184,15 @@ export function passOn(s: AppState, num: number, input: { to: string; by: string
 export function extend(s: AppState, num: number, input: { dueLabel: string; by: string }): Loan {
   const loan = findLoan(s, num);
   if (loan.returned) fail(409, `Slip L-${num} is already closed.`);
-  const due = input.dueLabel.trim();
-  if (!due) fail(422, "Enter the new return time.");
+  const due = resolveDue(s, input.dueLabel.trim());
   const old = loan.dueLabel;
-  loan.dueLabel = due;
+  loan.dueLabel = due.label;
+  loan.dueAt = due.at;
   loan.history.push({
     kind: "extended",
     phase: s.phase,
     by: input.by || "Desk",
-    text: `Return time changed from ${old} to ${due}`,
+    text: `Return time changed from ${old} to ${due.label}`,
   });
   return loan;
 }
@@ -216,6 +227,7 @@ export function addNote(s: AppState, input: { text: string; requestId?: string }
 // ---- queries -------------------------------------------------------------
 
 export function handover(s: AppState): HandoverLine[] {
+  const now = s.shifts[s.phase]!.at;
   return s.loans
     .filter((l) => !l.returned)
     .map((l) => {
@@ -230,7 +242,8 @@ export function handover(s: AppState): HandoverLine[] {
         unit: `${asset.type} · ${asset.model}`,
         holder: l.holder,
         dueLabel: l.dueLabel,
-        nextStep: `Expect ${asset.id} (${asset.model}) back from ${who} by ${l.dueLabel}. Close slip L-${l.num} only for that unit.`,
+        dueStatus: dueStatus(now, l.dueAt),
+        nextStep: `Expect ${asset.id} (${asset.model}) back from ${who} by ${l.dueLabel}${dueStatus(now, l.dueAt) === "overdue" ? " (overdue)" : ""}. Close slip L-${l.num} only for that unit.`,
       };
     });
 }

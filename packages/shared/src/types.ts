@@ -2,6 +2,14 @@
 
 export type PhaseIndex = 0 | 1 | 2;
 
+/** A return time the desk can choose. `at` is a local ISO time in the sample week (no timezone). */
+export interface DueOption {
+  label: string;
+  at: string;
+}
+
+export type DueStatus = "ok" | "due_soon" | "overdue";
+
 export interface RequestLine {
   type: string;
   qty: number;
@@ -13,6 +21,7 @@ export interface EquipmentRequest {
   event: string;
   owner: string;
   dueLabel: string;
+  dueAt: string;
   lines: RequestLine[];
   authorized: string[];
   /** Why each extra collector was added after the request was filed. */
@@ -44,6 +53,7 @@ export interface Loan {
   collectedBy: string;
   holder: string;
   dueLabel: string;
+  dueAt: string;
   returned: boolean;
   returnedBy?: string;
   history: LoanEvent[];
@@ -58,6 +68,8 @@ export interface HandoverNote {
 
 export interface Shift {
   time: string;
+  /** The desk clock at this phase, local ISO time. Overdue is measured against it. */
+  at: string;
   title: string;
   text: string;
 }
@@ -67,6 +79,7 @@ export interface AppState {
   phase: PhaseIndex;
   shifts: Shift[];
   people: string[];
+  dueOptions: DueOption[];
   requests: EquipmentRequest[];
   assets: Asset[];
   loans: Loan[];
@@ -82,6 +95,7 @@ export interface HandoverLine {
   unit: string;
   holder: string;
   dueLabel: string;
+  dueStatus: DueStatus;
   nextStep: string;
 }
 

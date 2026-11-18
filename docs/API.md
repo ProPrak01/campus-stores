@@ -19,6 +19,10 @@ Status: **live** means it works now. Every endpoint below is live.
 | `POST /api/notes` | `{ text, requestId? }` | live | Adds a handover note |
 | `GET /api/handover` | none | live | `{ summary: HandoverLine[] }` generated from open loans (`HandoverLine` is in shared types) |
 
+## Due times and overdue
+
+Return times come from `AppState.dueOptions` (label plus ISO time). `dueLabel` in `issue`, `issue-kit` and `extend` must match one of the labels, otherwise 422. Each loan and request carries `dueAt`. The desk clock is `shifts[phase].at`. Use `dueStatus(nowAt, dueAt)` from `@campus/shared` to get `"ok" | "due_soon" | "overdue"` (due soon means within 60 minutes). `GET /api/handover` already includes `dueStatus` per line.
+
 ## Rules the backend enforces (the UI should show the message, not repeat the logic)
 
 - A unit in repair, or already on loan, cannot be issued.

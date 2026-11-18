@@ -6,19 +6,28 @@ export const seedState = (): AppState => ({
   shifts: [
     {
       time: "Friday · 3:45 pm",
+      at: "2026-11-20T15:45:00",
       title: "Pickup at the counter",
       text: "Kabir is here for the Film Society screening. The film starts at four. Can he leave with everything he needs?",
     },
     {
       time: "Friday · 7:30 pm",
+      at: "2026-11-20T19:30:00",
       title: "The kit comes back in pieces",
       text: "Kabir has brought back the projector and speaker. “Leela still has the adapter. She’ll drop it off tomorrow at nine.” Take the return and hand over to the morning shift.",
     },
     {
       time: "Saturday · 9:00 am",
+      at: "2026-11-21T09:00:00",
       title: "Morning shift",
       text: "You’ve just taken over. Leela walks in with an adapter. Work out what was outstanding from the screening and close the loan for the right item.",
     },
+  ],
+  dueOptions: [
+    { label: "Fri 8 pm", at: "2026-11-20T20:00:00" },
+    { label: "Sat 9 am", at: "2026-11-21T09:00:00" },
+    { label: "Sat 10 am", at: "2026-11-21T10:00:00" },
+    { label: "Sat noon", at: "2026-11-21T12:00:00" },
   ],
   people: ["Isha Rao", "Kabir Sen", "Leela Das", "Tara Shah", "Dev Menon"],
   requests: [
@@ -28,6 +37,7 @@ export const seedState = (): AppState => ({
       event: "Courtyard screening",
       owner: "Isha Rao",
       dueLabel: "Fri 8 pm",
+      dueAt: "2026-11-20T20:00:00",
       lines: [
         { type: "HDMI projector", qty: 1 },
         { type: "Portable speaker", qty: 1 },
@@ -42,6 +52,7 @@ export const seedState = (): AppState => ({
       event: "Finals rehearsal",
       owner: "Tara Shah",
       dueLabel: "Sat 10 am",
+      dueAt: "2026-11-21T10:00:00",
       lines: [{ type: "Wireless microphone", qty: 1 }],
       authorized: ["Tara Shah"],
       note: "Rehearsal runs into the evening.",
@@ -52,6 +63,7 @@ export const seedState = (): AppState => ({
       event: "Street portrait walk",
       owner: "Dev Menon",
       dueLabel: "Sat noon",
+      dueAt: "2026-11-21T12:00:00",
       lines: [{ type: "Digital camera", qty: 1 }],
       authorized: ["Dev Menon"],
       note: "Collection on Saturday morning.",
@@ -75,6 +87,7 @@ export const seedState = (): AppState => ({
       collectedBy: "Tara Shah",
       holder: "Tara Shah",
       dueLabel: "Sat 10 am",
+      dueAt: "2026-11-21T10:00:00",
       returned: false,
       history: [{ kind: "issued", phase: 0, by: "Desk", text: "Issued to Tara Shah" }],
     },

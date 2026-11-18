@@ -11,7 +11,11 @@ let state: AppState = load();
 
 function load(): AppState {
   try {
-    if (existsSync(file)) return JSON.parse(readFileSync(file, "utf8")) as AppState;
+    if (existsSync(file)) {
+      const saved = JSON.parse(readFileSync(file, "utf8")) as AppState;
+      // A file saved by an older build lacks the due-time fields. Start fresh instead of serving bad data.
+      if (Array.isArray(saved.dueOptions) && saved.loans.every((l) => l.dueAt)) return saved;
+    }
   } catch {
     // fall through to a fresh seed if the file is unreadable
   }

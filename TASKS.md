@@ -67,10 +67,10 @@ Every checkpoint ends with a commit and a push (see section 5).
 - [ ] A2. Capture "before" screenshots at each phase to `docs/before/`.
 
 ### B. Data model (`app.js`)
-- [ ] B1. Request lines get `{ type, qty }`. Requests get `authorized` collectors (RQ-214: Isha Rao, Kabir Sen).
-- [ ] B2. Each phase gets a sortable timestamp. Due dates become `dueAt` plus a display label.
-- [ ] B3. A loan gets `holder` (separate from the collector) and a `history` list of events (issued, passed on, extended, returned).
-- [ ] B4. A loan gets `returnedBy` and `returnedAt`.
+- [x] B1. Request lines get `{ type, qty }`. Requests get `authorized` collectors (RQ-214: Isha Rao, Kabir Sen).
+- [x] B2. Each phase gets a sortable timestamp. Due dates become `dueAt` plus a display label.
+- [x] B3. A loan gets `holder` (separate from the collector) and a `history` list of events (issued, passed on, extended, returned).
+- [x] B4. A loan gets `returnedBy` and `returnedAt`.
 - [ ] B5. Bump state `version` to 2. Old saves fall back to a fresh shift with a notice. `restore()` validates every field.
 
 ### C. Kit view (core change)
@@ -120,6 +120,12 @@ Every checkpoint ends with a commit and a push (see section 5).
 - [ ] S1. Undo for the last issue or return.
 - [ ] S2. Search by unit ID or person.
 - [ ] S3. Printable handover card.
+
+### Progress log
+
+- Backend done and pushed: issue, issue-kit, return by unit, pass-on, extend, collectors, notes, handover summary, phase advance, due and overdue status from the desk clock (`dueStatus` in `packages/shared`), return times chosen from a fixed list. See `docs/API.md`.
+- Backend gaps: B5 uses a field-presence check on the saved file instead of a version number.
+- Frontend (C, E, F, G, H screens) is owned by the other agent. Items stay unticked until the UI is playable.
 
 ## 4. Order
 
