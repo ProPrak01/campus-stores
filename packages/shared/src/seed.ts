@@ -1,0 +1,83 @@
+import type { AppState } from "./types.js";
+
+/** Fictional starting records, ported from legacy/app.js. */
+export const seedState = (): AppState => ({
+  phase: 0,
+  shifts: [
+    {
+      time: "Friday · 3:45 pm",
+      title: "Pickup at the counter",
+      text: "Kabir is here for the Film Society screening. The film starts at four. Can he leave with everything he needs?",
+    },
+    {
+      time: "Friday · 7:30 pm",
+      title: "The kit comes back in pieces",
+      text: "Kabir has brought back the projector and speaker. “Leela still has the adapter. She’ll drop it off tomorrow at nine.” Take the return and hand over to the morning shift.",
+    },
+    {
+      time: "Saturday · 9:00 am",
+      title: "Morning shift",
+      text: "You’ve just taken over. Leela walks in with an adapter. Work out what was outstanding from the screening and close the loan for the right item.",
+    },
+  ],
+  people: ["Isha Rao", "Kabir Sen", "Leela Das", "Tara Shah", "Dev Menon"],
+  requests: [
+    {
+      id: "RQ-214",
+      club: "Film Society",
+      event: "Courtyard screening",
+      owner: "Isha Rao",
+      dueLabel: "Fri 8 pm",
+      lines: [
+        { type: "HDMI projector", qty: 1 },
+        { type: "Portable speaker", qty: 1 },
+        { type: "USB-C → HDMI adapter", qty: 1 },
+      ],
+      authorized: ["Isha Rao", "Kabir Sen"],
+      note: "Playback is from a USB-C-only laptop. The host will collect at 4 pm.",
+    },
+    {
+      id: "RQ-209",
+      club: "Debate Union",
+      event: "Finals rehearsal",
+      owner: "Tara Shah",
+      dueLabel: "Sat 10 am",
+      lines: [{ type: "Wireless microphone", qty: 1 }],
+      authorized: ["Tara Shah"],
+      note: "Rehearsal runs into the evening.",
+    },
+    {
+      id: "RQ-217",
+      club: "Photo Circle",
+      event: "Street portrait walk",
+      owner: "Dev Menon",
+      dueLabel: "Sat noon",
+      lines: [{ type: "Digital camera", qty: 1 }],
+      authorized: ["Dev Menon"],
+      note: "Collection on Saturday morning.",
+    },
+  ],
+  assets: [
+    { id: "PR-04", type: "HDMI projector", model: "BenQ MH550", bin: "A2" },
+    { id: "PR-06", type: "HDMI projector", model: "Epson EB-X49", bin: "Workshop", inRepair: true },
+    { id: "SP-02", type: "Portable speaker", model: "JBL Eon One", bin: "B1" },
+    { id: "SP-05", type: "Portable speaker", model: "Bose S1", bin: "B2" },
+    { id: "AD-12", type: "USB-C → HDMI adapter", model: "Belkin AVC002", bin: "C4" },
+    { id: "AD-15", type: "USB-C → HDMI adapter", model: "Anker A8312", bin: "C4" },
+    { id: "MI-09", type: "Wireless microphone", model: "Shure BLX", bin: "B3" },
+    { id: "CA-03", type: "Digital camera", model: "Sony A6400", bin: "D2" },
+  ],
+  loans: [
+    {
+      num: 401,
+      requestId: "RQ-209",
+      assetId: "MI-09",
+      collectedBy: "Tara Shah",
+      holder: "Tara Shah",
+      dueLabel: "Sat 10 am",
+      returned: false,
+      history: [{ kind: "issued", phase: 0, by: "Desk", text: "Issued to Tara Shah" }],
+    },
+  ],
+  notes: [],
+});

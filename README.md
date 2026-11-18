@@ -1,27 +1,45 @@
 # Campus Stores
 
-Campus Stores is a Product Engineer work sample set at a fictional campus media equipment desk. Work through a club’s screening, from equipment pickup to a partial return and the next morning’s handover. Open **Candidate brief** in the app for the assignment.
+Campus Stores is a Product Engineer work sample set at a fictional campus media equipment desk. Work through a club’s screening, from equipment pickup to a partial return and the next morning’s handover.
 
-## Run the app
+This fork rebuilds the original app as a TypeScript monorepo and redesigns the request, return and handover flow. The plan is in [TASKS.md](TASKS.md). The original app is kept, unchanged, in [legacy/](legacy/) (open `legacy/index.html`).
 
-Open `index.html` in a modern browser. The app includes its scripts, styles, and icons and can run offline.
+## Stack
 
-To serve it over local HTTP, run this from the repository folder and visit `http://localhost:8000`.
+| Part | Tech |
+| --- | --- |
+| `apps/web` | React 19, TypeScript, Vite |
+| `apps/api` | Fastify, TypeScript (run with tsx), JSON-file store |
+| `packages/shared` | Domain types and seed data used by both apps |
+
+## Run
+
+Requires Node 20+.
 
 ```sh
-python3 -m http.server 8000 --bind 127.0.0.1
+npm install
+npm run dev        # API on :3001, web on http://localhost:5173
 ```
 
-Each browser stores its own sample shift locally when browser storage is available. **Restart sample shift** restores the fictional starting records.
+Production-style, one process on http://127.0.0.1:3001:
 
-## Source
+```sh
+npm start
+```
 
-- `index.html` contains the desk layout, candidate brief, and bundled icons.
-- `app.js` contains the sample records and interactions.
-- `styles.css` defines the desktop and mobile layouts.
+Other scripts: `npm run typecheck`, `npm run build`. `POST /api/reset` restores the fictional starting records. State is saved to `apps/api/data/state.json` (git-ignored).
 
-Icon license notices are in [third-party/lucide-LICENSE.txt](third-party/lucide-LICENSE.txt).
+## Layout
 
+```
+apps/web         UI (see docs/FRONTEND_AGENT.md)
+apps/api         HTTP API and domain rules
+packages/shared  Types and seed data (the contract between the two)
+legacy           Original exercise app
+docs             API contract, evidence, screenshots
+```
+
+Icon license notices are in [legacy/third-party/lucide-LICENSE.txt](legacy/third-party/lucide-LICENSE.txt).
 
 ## Submit your work
 
