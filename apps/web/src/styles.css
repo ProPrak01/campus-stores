@@ -1,8 +1,425 @@
+/* ── Base ── */
 :root {
   color-scheme: light dark;
-  font: 14px/1.48 Inter, Arial, sans-serif;
+  background: light-dark(#f0f2f1, #191e21);
 }
 body {
   margin: 0;
-  padding: 24px;
+  padding: clamp(10px, 3vw, 44px) clamp(6px, 3vw, 36px);
+}
+body > main {
+  max-width: 1060px;
+  margin: 0 auto;
+}
+
+/* ── Icon defaults ── */
+.store-icon {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── App container ── */
+#campus-stores {
+  color-scheme: light dark;
+  --ink: light-dark(#202c35, #ecf0f0);
+  --quiet: light-dark(#526370, #b9c5cb);
+  --paper: light-dark(#fff, #232a30);
+  --desk: light-dark(#f3f5f5, #1d2328);
+  --nav: light-dark(#eaf0f1, #29333b);
+  --sel: light-dark(#233e4c, #c5dce4);
+  --inv: light-dark(#fff, #172b34);
+  --line: light-dark(#d2dcdf, #475158);
+  --memo: light-dark(#fff3d8, #3d3426);
+  --memotxt: light-dark(#65491e, #ead4a5);
+  --mark: light-dark(#bd502f, #f2a585);
+  --ok: light-dark(#e3f1e8, #2d4838);
+  --oktxt: light-dark(#25523d, #bedac8);
+  --warn: light-dark(#fef3cd, #3d3426);
+  --warntxt: light-dark(#664d03, #ead4a5);
+  background: var(--paper);
+  color: var(--ink);
+  font: 14px/1.48 "Inter", "Arial", sans-serif;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  container-type: inline-size;
+}
+#campus-stores * {
+  box-sizing: border-box;
+}
+#campus-stores [hidden] {
+  display: none !important;
+}
+#campus-stores h1,
+#campus-stores h2,
+#campus-stores h3,
+#campus-stores p {
+  margin: 0;
+}
+#campus-stores h1 {
+  font: 600 clamp(24px, 4cqw, 33px)/1.13 "Archivo", system-ui, sans-serif;
+  letter-spacing: -0.05em;
+}
+#campus-stores h2 {
+  font-size: 20px;
+  letter-spacing: -0.03em;
+}
+#campus-stores h3 {
+  font-size: 15px;
+}
+#campus-stores .muted,
+#campus-stores small {
+  color: var(--quiet);
+}
+#campus-stores small {
+  font-size: 12px;
+}
+
+/* ── Header / Mast ── */
+#campus-stores .mast,
+#campus-stores .brandblock,
+#campus-stores .shift,
+#campus-stores .sectionhead,
+#campus-stores .statusbar,
+#campus-stores .buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#campus-stores .mast {
+  padding: 17px 20px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+#campus-stores .brandmark {
+  background: var(--mark);
+  color: var(--inv);
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+}
+#campus-stores .brandmark svg {
+  width: 25px;
+  height: 25px;
+}
+#campus-stores .clock {
+  display: grid;
+  text-align: right;
+}
+#campus-stores .clock strong {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Shift banner ── */
+#campus-stores .shift {
+  background: var(--memo);
+  color: var(--memotxt);
+  padding: 12px 19px;
+  justify-content: space-between;
+  border-block: 1px solid var(--line);
+}
+#campus-stores .shift div {
+  max-width: 67ch;
+}
+#campus-stores .shift b {
+  font-size: 13px;
+}
+#campus-stores .shift button {
+  background: transparent;
+  border-color: var(--memotxt);
+  color: var(--memotxt);
+  flex-shrink: 0;
+}
+
+/* ── Buttons, inputs, selects ── */
+#campus-stores button,
+#campus-stores select,
+#campus-stores input,
+#campus-stores textarea {
+  font: inherit;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  min-width: 0;
+  padding: 7px 9px;
+}
+#campus-stores button {
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+#campus-stores button:hover {
+  border-color: var(--sel);
+}
+#campus-stores .primary {
+  background: var(--sel);
+  color: var(--inv);
+  border-color: var(--sel);
+}
+#campus-stores :is(button, input, textarea, select, summary):focus-visible {
+  outline: 3px solid var(--mark);
+  outline-offset: 2px;
+}
+
+/* ── Shell: sidebar + page ── */
+#campus-stores .shell {
+  display: grid;
+  grid-template-columns: 155px minmax(0, 1fr);
+  min-height: 315px;
+}
+#campus-stores nav {
+  background: var(--nav);
+  border-right: 1px solid var(--line);
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+#campus-stores nav button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  font-weight: 500;
+}
+#campus-stores nav button[aria-pressed="true"] {
+  background: var(--sel);
+  color: var(--inv);
+}
+#campus-stores nav svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* ── Page content ── */
+#campus-stores .page {
+  padding: 17px 17px 20px;
+  min-width: 0;
+}
+#campus-stores .sectionhead,
+#campus-stores .statusbar {
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+#campus-stores .sectionhead {
+  margin-bottom: 12px;
+}
+#campus-stores .sectionhead small {
+  margin-top: 2px;
+  display: block;
+}
+
+/* ── Rows ── */
+#campus-stores .row {
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 0;
+}
+#campus-stores .row small,
+#campus-stores label span {
+  display: block;
+}
+
+/* ── Tags / chips ── */
+#campus-stores .tag {
+  background: var(--desk);
+  color: var(--quiet);
+  font-size: 12px;
+  padding: 3px 7px;
+  border-radius: 5px;
+  display: inline-block;
+  white-space: nowrap;
+}
+#campus-stores .good {
+  background: var(--ok);
+  color: var(--oktxt);
+}
+#campus-stores .tag.out {
+  background: var(--memo);
+  color: var(--memotxt);
+}
+#campus-stores .tag.partial {
+  background: var(--warn);
+  color: var(--warntxt);
+}
+
+/* ── Record cards ── */
+#campus-stores .record {
+  margin-top: 14px;
+  padding: 12px 13px;
+  background: var(--desk);
+  border-left: 3px solid var(--sel);
+}
+#campus-stores .record p {
+  margin-top: 5px;
+}
+#campus-stores .record + .record {
+  margin-top: 10px;
+}
+
+/* ── Button groups ── */
+#campus-stores .buttons {
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+#campus-stores .buttons button[aria-pressed="true"] {
+  background: var(--sel);
+  color: var(--inv);
+}
+#campus-stores .buttons label {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* ── Forms ── */
+#campus-stores .form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 10px 0;
+}
+#campus-stores .form label {
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 0;
+}
+#campus-stores .form label span {
+  margin-bottom: 3px;
+}
+#campus-stores .form :is(select, input, textarea) {
+  width: 100%;
+  font-weight: 400;
+}
+#campus-stores .full {
+  grid-column: 1/-1;
+}
+#campus-stores textarea {
+  resize: vertical;
+}
+
+/* ── Status bar ── */
+#campus-stores .statusbar {
+  background: var(--desk);
+  border-top: 1px solid var(--line);
+  padding: 8px 16px;
+  color: var(--quiet);
+  font-size: 12px;
+}
+#campus-stores .statusbar span {
+  flex: 1 1 160px;
+}
+#campus-stores .statusbar button {
+  font-size: 12px;
+  background: transparent;
+}
+
+/* ── Kit view ── */
+#campus-stores .kit-line {
+  border-top: 1px solid var(--line);
+  padding: 9px 0;
+}
+#campus-stores .kit-summary {
+  padding: 10px 13px;
+  background: var(--desk);
+  border-radius: 6px;
+  margin: 10px 0;
+  font-size: 13px;
+  color: var(--quiet);
+}
+#campus-stores .kit-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+
+/* ── Timeline ── */
+#campus-stores .timeline {
+  margin: 8px 0;
+  padding-left: 16px;
+  border-left: 2px solid var(--line);
+}
+#campus-stores .timeline-event {
+  padding: 4px 0 8px 8px;
+  font-size: 13px;
+}
+#campus-stores .timeline-event small {
+  display: block;
+}
+
+/* ── Alert box ── */
+#campus-stores .alert-box {
+  padding: 10px 13px;
+  margin: 10px 0;
+  border-radius: 6px;
+  font-size: 13px;
+}
+#campus-stores .alert-box.error {
+  background: light-dark(#fde8e8, #3d2626);
+  color: light-dark(#8b1a1a, #f2a5a5);
+  border: 1px solid light-dark(#f5c2c2, #5a3333);
+}
+
+/* ── Responsive: 650px ── */
+@container (max-width: 650px) {
+  #campus-stores .shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #campus-stores nav {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 7px;
+  }
+  #campus-stores nav button {
+    gap: 4px;
+    padding: 5px 7px;
+  }
+  #campus-stores .shift {
+    flex-wrap: wrap;
+  }
+  #campus-stores .page {
+    padding: 14px 12px;
+  }
+  #campus-stores .mast {
+    padding: 12px;
+  }
+  #campus-stores .shift {
+    padding: 9px 12px;
+  }
+}
+
+/* ── Responsive: 420px ── */
+@container (max-width: 420px) {
+  #campus-stores .form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #campus-stores .brandmark {
+    display: none;
+  }
+  #campus-stores .row {
+    gap: 5px;
+  }
+}
+
+/* ── Coarse pointer ── */
+@media (pointer: coarse) {
+  #campus-stores button,
+  #campus-stores select {
+    min-height: 44px;
+  }
 }
