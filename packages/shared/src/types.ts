@@ -15,6 +15,8 @@ export interface EquipmentRequest {
   dueLabel: string;
   lines: RequestLine[];
   authorized: string[];
+  /** Why each extra collector was added after the request was filed. */
+  collectorLog?: { name: string; reason: string; phase: PhaseIndex }[];
   note: string;
 }
 
@@ -69,6 +71,18 @@ export interface AppState {
   assets: Asset[];
   loans: Loan[];
   notes: HandoverNote[];
+}
+
+/** One open loan, described for the next shift. Returned by GET /api/handover. */
+export interface HandoverLine {
+  loanNum: number;
+  requestId: string;
+  club: string;
+  assetId: string;
+  unit: string;
+  holder: string;
+  dueLabel: string;
+  nextStep: string;
 }
 
 export interface ApiError {

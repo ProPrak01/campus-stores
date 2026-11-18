@@ -2,22 +2,22 @@
 
 Base path `/api`, JSON in and out. Types live in `packages/shared/src/types.ts`. Every mutating endpoint returns the full updated `AppState`, so the UI replaces its state with the response. Errors return a non-2xx status and `{ "error": "message" }` (`ApiError`).
 
-Status: **live** means it works now. **planned** means the backend owner is building it; code against the shape below and treat 404 as "not ready yet".
+Status: **live** means it works now. Every endpoint below is live.
 
 | Method and path | Body | Status | Notes |
 | --- | --- | --- | --- |
 | `GET /api/health` | none | live | `{ ok: true }` |
 | `GET /api/state` | none | live | Returns `AppState` |
 | `POST /api/reset` | none | live | Restores seed data, returns `AppState` |
-| `POST /api/phase/advance` | none | planned | Moves the desk clock forward one phase |
-| `POST /api/issue` | `{ requestId, assetId, collectedBy, dueLabel? }` | planned | One slip. `dueLabel` defaults to the request's |
-| `POST /api/issue-kit` | `{ requestId, collectedBy, assetIds?: Record<lineType, assetId> }` | planned | Issues every line not yet out, in one call. Picks on-shelf units if `assetIds` is omitted |
-| `POST /api/loans/:num/pass-on` | `{ to, by }` | planned | Changes `holder` and adds a `passed_on` event |
-| `POST /api/loans/:num/extend` | `{ dueLabel, by }` | planned | Adds an `extended` event |
-| `POST /api/return` | `{ assetId, returnedBy }` | planned | Closes the open loan for that unit. Returns 409 if the unit has no open loan |
-| `POST /api/requests/:id/collectors` | `{ name, reason }` | planned | Adds an authorized collector |
-| `POST /api/notes` | `{ text, requestId? }` | planned | Adds a handover note |
-| `GET /api/handover` | none | planned | `{ summary: HandoverLine[] }` generated from open loans |
+| `POST /api/phase/advance` | none | live | Moves the desk clock forward one phase |
+| `POST /api/issue` | `{ requestId, assetId, collectedBy, dueLabel? }` | live | One slip. `dueLabel` defaults to the request's |
+| `POST /api/issue-kit` | `{ requestId, collectedBy, assetIds?: Record<lineType, assetId> }` | live | Issues every line not yet out, in one call. Picks on-shelf units if `assetIds` is omitted |
+| `POST /api/loans/:num/pass-on` | `{ to, by }` | live | Changes `holder` and adds a `passed_on` event |
+| `POST /api/loans/:num/extend` | `{ dueLabel, by }` | live | Adds an `extended` event |
+| `POST /api/return` | `{ assetId, returnedBy }` | live | Closes the open loan for that unit. Returns 409 if the unit has no open loan |
+| `POST /api/requests/:id/collectors` | `{ name, reason }` | live | Adds an authorized collector |
+| `POST /api/notes` | `{ text, requestId? }` | live | Adds a handover note |
+| `GET /api/handover` | none | live | `{ summary: HandoverLine[] }` generated from open loans (`HandoverLine` is in shared types) |
 
 ## Rules the backend enforces (the UI should show the message, not repeat the logic)
 
@@ -29,3 +29,7 @@ Status: **live** means it works now. **planned** means the backend owner is buil
 ## Error messages the UI can show verbatim
 
 The `error` string is written for the desk clerk. Show it in an `role="alert"` region.
+
+## Status codes
+
+`403` collector not authorized. `404` unknown request, unit or slip. `409` state conflict (in repair, already on loan, quantity reached, no open loan, slip closed, nothing left to issue, no later shift). `422` bad or missing input.

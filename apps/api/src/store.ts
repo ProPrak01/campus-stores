@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { seedState, type AppState } from "@campus/shared";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const file = resolve(here, "../data/state.json");
+const file = process.env.STATE_FILE ?? resolve(here, "../data/state.json");
 
 /** Single-process JSON-file store. Good enough for a desk demo; swap for SQLite later. */
 let state: AppState = load();
