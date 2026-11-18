@@ -9,28 +9,33 @@ interface Props {
   setStatus: (msg: string) => void;
 }
 
-/** Static club messages that appear at certain phases. */
-function getClubMessages(phase: number): { time: string; author: string; body: string }[] {
-  const msgs: { time: string; author: string; body: string }[] = [
-    {
-      time: "Friday · 3:20 pm",
-      author: "Isha Rao · Film Society",
-      body: "Kabir Sen is picking up our whole screening kit. Please issue it in his name. I'm setting up in the courtyard.",
-    },
-    {
-      time: "Friday · 3:30 pm",
-      author: "Tara Shah · Debate Union",
-      body: "Our microphone stays with me overnight. I'll return it by 10 am Saturday.",
-    },
-  ];
-  if (phase >= 1) {
-    msgs.push({
-      time: "Friday · 7:30 pm",
-      author: "Kabir Sen · Film Society",
-      body: "I brought the projector and speaker. Leela Das has our adapter. She'll be at the counter at 9 am tomorrow.",
-    });
-  }
-  return msgs;
+interface Entry {
+  key: string;
+  phase: number;
+  time: string;
+  author: string;
+  body: string;
+  requestId?: string;
+}
+
+/**
+ * Club messages that have arrived by the current phase, merged with handover notes, newest first.
+ * Within a phase, club messages come before the notes the desk wrote during that phase.
+ */
+function deskBookEntries(state: AppState): Entry[] {
+  const messages: Entry[] = state.messages
+    .filter((m) => m.phase <= state.phase)
+    .map((m, i) => ({ key: `m${i}`, phase: m.phase, time: m.time, author: m.author, body: m.text }));
+  const notes: Entry[] = state.notes.map((n) => ({
+    key: `n${n.id}`,
+    phase: n.phase,
+    time: state.shifts[n.phase]?.time ?? "",
+    author: "Counter handover",
+    body: n.text,
+    requestId: n.requestId,
+  }));
+  // Array.prototype.sort is stable, so source order is kept within a phase.
+  return [...messages, ...notes].sort((a, b) => a.phase - b.phase).reverse();
 }
 
 export function DeskBookScreen({ state, mutate, setStatus }: Props) {
@@ -56,17 +61,7 @@ export function DeskBookScreen({ state, mutate, setStatus }: Props) {
     setNoteRequestId("");
   };
 
-  const clubMessages = getClubMessages(state.phase);
-  const allEntries = [
-    ...clubMessages.map((m) => ({ ...m, isNote: false as const, requestId: undefined as string | undefined })),
-    ...state.notes.map((n) => ({
-      time: state.shifts[n.phase]?.time ?? "",
-      author: "Counter handover",
-      body: n.text,
-      isNote: true as const,
-      requestId: n.requestId,
-    })),
-  ].reverse();
+  const allEntries = deskBookEntries(state);
 
   return (
     <div>
@@ -95,8 +90,8 @@ export function DeskBookScreen({ state, mutate, setStatus }: Props) {
       )}
 
       {/* ── Entries ── */}
-      {allEntries.map((entry, i) => (
-        <article className="record" key={i}>
+      {allEntries.map((entry) => (
+        <article className="record" key={entry.key}>
           <small>{entry.time}</small>
           <h3>{entry.author}</h3>
           <p>{entry.body}</p>
