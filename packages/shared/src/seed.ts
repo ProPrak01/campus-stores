@@ -93,4 +93,24 @@ export const seedState = (): AppState => ({
     },
   ],
   notes: [],
+  messages: [
+    {
+      phase: 0,
+      time: "Friday · 3:20 pm",
+      author: "Isha Rao · Film Society",
+      text: "Kabir Sen is picking up our whole screening kit. Please issue it in his name. I’m setting up in the courtyard.",
+    },
+    {
+      phase: 0,
+      time: "Friday · 3:30 pm",
+      author: "Tara Shah · Debate Union",
+      text: "Our microphone stays with me overnight. I’ll return it by 10 am Saturday.",
+    },
+    {
+      phase: 1,
+      time: "Friday · 7:30 pm",
+      author: "Kabir Sen · Film Society",
+      text: "I brought the projector and speaker. Leela Das has our adapter. She’ll be at the counter at 9 am tomorrow.",
+    },
+  ],
 });

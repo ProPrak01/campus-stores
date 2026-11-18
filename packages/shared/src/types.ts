@@ -66,6 +66,14 @@ export interface HandoverNote {
   requestId?: string;
 }
 
+/** A message from a club, shown in the Desk book from the phase it arrives in. */
+export interface ClubMessage {
+  phase: PhaseIndex;
+  time: string;
+  author: string;
+  text: string;
+}
+
 export interface Shift {
   time: string;
   /** The desk clock at this phase, local ISO time. Overdue is measured against it. */
@@ -84,6 +92,7 @@ export interface AppState {
   assets: Asset[];
   loans: Loan[];
   notes: HandoverNote[];
+  messages: ClubMessage[];
 }
 
 /** One open loan, described for the next shift. Returned by GET /api/handover. */
