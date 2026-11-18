@@ -7,8 +7,12 @@ import { RequestsScreen } from "./screens/Requests";
 import { InventoryScreen } from "./screens/Inventory";
 import { LoanRegisterScreen } from "./screens/LoanRegister";
 import { DeskBookScreen } from "./screens/DeskBook";
+import { ToolsDrawer } from "./components/tools/ToolsDrawer";
 
 type Tab = "Requests" | "Inventory" | "Loan register" | "Desk book";
+type Theme = "system" | "light" | "dark";
+const THEMES: Theme[] = ["system", "light", "dark"];
+const THEME_KEY = "campus-stores.theme";
 
 const NAV_ITEMS: { tab: Tab; icon: "clipboard-list" | "package" | "book-open" | "messages-square" }[] = [
   { tab: "Requests", icon: "clipboard-list" },
@@ -24,8 +28,31 @@ export function App() {
   const [status, setStatus] = useState("Sample shift · All records are fictional.");
   const [alert, setAlert] = useState("");
   const [advancePrompt, setAdvancePrompt] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const [theme, setTheme] = useState<Theme>(() => {
+    const saved = localStorage.getItem(THEME_KEY) as Theme | null;
+    return saved && THEMES.includes(saved) ? saved : "system";
+  });
   const pageRef = useRef<HTMLElement>(null);
   const alertRef = useRef<HTMLDivElement>(null);
+
+  // Theme: "system" follows the OS. Light and dark force a color scheme through [data-theme] on <html>.
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try { localStorage.setItem(THEME_KEY, theme); } catch { /* storage unavailable */ }
+  }, [theme]);
+
+  // "t" opens the tools drawer, unless the user is typing in a field.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "t" || e.ctrlKey || e.metaKey || e.altKey) return;
+      const el = e.target as HTMLElement | null;
+      if (el && (el.isContentEditable || /^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName))) return;
+      setToolsOpen((o) => !o);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const load = useCallback(() => {
     api.getState().then(setState).catch((e: Error) => setError(e.message));
@@ -105,6 +132,18 @@ export function App() {
           <small>Desk time</small>
           <strong>{shift?.time}</strong>
         </div>
+        <div className="mast-tools">
+          <button type="button" onClick={() => setToolsOpen(true)} aria-keyshortcuts="t">
+            <Icon name="calculator" /> Tools
+          </button>
+          <button
+            type="button"
+            onClick={() => setTheme(THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length]!)}
+            aria-label={`Theme: ${theme}. Click to change.`}
+          >
+            <Icon name={theme === "dark" ? "moon" : theme === "light" ? "sun" : "monitor"} />
+          </button>
+        </div>
       </header>
 
       {shift && (
@@ -172,6 +211,7 @@ export function App() {
         <span role="status" aria-live="polite">{status}</span>
         <button type="button" onClick={handleRestart}>Restart sample shift</button>
       </div>
+      {toolsOpen && <ToolsDrawer state={state} onClose={() => setToolsOpen(false)} />}
     </div>
   );
 }

@@ -372,6 +372,123 @@ body > main {
   display: block;
 }
 
+/* ── Top bar tools ── */
+#campus-stores .mast-tools {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+#campus-stores .mast-tools button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+:root[data-theme="light"],
+:root[data-theme="light"] #campus-stores {
+  color-scheme: light;
+}
+:root[data-theme="dark"],
+:root[data-theme="dark"] #campus-stores {
+  color-scheme: dark;
+}
+
+/* ── Tools drawer ── */
+#campus-stores {
+  position: relative;
+}
+#campus-stores .drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  width: min(420px, 100%);
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border-left: 1px solid var(--line);
+  box-shadow: -8px 0 24px rgb(0 0 0 / 0.18);
+  outline: none;
+}
+#campus-stores .drawer-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px 8px;
+}
+#campus-stores .drawer-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 0 12px 10px;
+  border-bottom: 1px solid var(--line);
+}
+#campus-stores .drawer-tabs button[aria-selected="true"] {
+  background: var(--sel);
+  color: var(--inv);
+  border-color: var(--sel);
+}
+#campus-stores .drawer-body {
+  padding: 14px 16px 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+#campus-stores .tool {
+  display: grid;
+  gap: 12px;
+}
+#campus-stores .tool h3 {
+  margin-top: 6px;
+}
+#campus-stores .tool-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+#campus-stores .tool-field {
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 0;
+}
+#campus-stores .tool-field span {
+  display: block;
+  margin-bottom: 3px;
+}
+#campus-stores .tool-field :is(input, select) {
+  width: 100%;
+  font-weight: 400;
+}
+#campus-stores .tool-result {
+  background: var(--desk);
+  border-left: 3px solid var(--sel);
+  padding: 10px 12px;
+  border-radius: 4px;
+  display: grid;
+  gap: 4px;
+}
+#campus-stores .tool-error {
+  color: light-dark(#8b1a1a, #f2a5a5);
+  font-size: 13px;
+}
+#campus-stores .keypad {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+#campus-stores .keypad button {
+  min-height: 40px;
+  font-variant-numeric: tabular-nums;
+}
+#campus-stores .keypad .equals {
+  grid-column: span 2;
+}
+#campus-stores .tool-history {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--quiet);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ── Alert box ── */
 #campus-stores .alert-box {
   padding: 10px 13px;

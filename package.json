@@ -13,7 +13,7 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "start": "npm run build && npm run start -w @campus/api",
     "e2e": "npm run build && node e2e/story.mjs",
-    "test": "npm run test -w @campus/shared",
+    "test": "npm run test -w @campus/shared && npm run test -w @campus/web",
     "build:pages": "VITE_STATIC=1 npm run build -w @campus/web -- --base=./",
     "e2e:pages": "npm run build:pages && E2E_STATIC=1 node e2e/story.mjs"
   },
