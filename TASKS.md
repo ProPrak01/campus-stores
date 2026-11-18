@@ -128,6 +128,7 @@ Every checkpoint ends with a commit and a push (see section 5).
 - Frontend: kit view, issue kit, return by unit ID (`ReturnPanel`), pass-on, new return time, history, overdue chips, generated handover, advance prompt.
 - Checks: `npm test` (14 domain tests), `npm run e2e` (full Film Society story in Chrome, 11 steps).
 - In progress with the frontend agent: `docs/FRONTEND_ROUND2.md` (W1 to W10: favicon, collector must be chosen, authority and notes in the kit view, banner handover, focus and keyboard, KitView split, visual check). That covers D1, F2, F4, H2, H3, H4.
+- Publishing: `packages/shared/src/router.ts` holds every route. The Fastify server and the static build (`apps/web/src/static-mode.ts`, `VITE_STATIC=1`) both use it. GitHub Pages deploys from `.github/workflows/pages.yml`. `npm run e2e:pages` plays the story on the static build.
 - Left for this agent: A1/A2 (legacy evidence and "before" screenshots), I1 to I7 (README write-up).
 
 ## 4. Order

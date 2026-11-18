@@ -15,11 +15,18 @@ const port = 3100 + Math.floor(Math.random() * 800);
 const base = `http://127.0.0.1:${port}`;
 const tmp = mkdtempSync(join(tmpdir(), "campus-e2e-"));
 
-const api = spawn("npx", ["tsx", "apps/api/src/server.ts"], {
-  cwd: root,
-  env: { ...process.env, PORT: String(port), STATE_FILE: join(tmp, "state.json") },
-  stdio: ["ignore", "ignore", "inherit"],
-});
+// E2E_STATIC=1 tests the GitHub Pages build (no server, API runs in the browser).
+const isStatic = !!process.env.E2E_STATIC;
+const api = isStatic
+  ? spawn("npx", ["vite", "preview", "--port", String(port), "--strictPort", "--host", "127.0.0.1"], {
+      cwd: join(root, "apps/web"),
+      stdio: ["ignore", "ignore", "inherit"],
+    })
+  : spawn("npx", ["tsx", "apps/api/src/server.ts"], {
+      cwd: root,
+      env: { ...process.env, PORT: String(port), STATE_FILE: join(tmp, "state.json") },
+      stdio: ["ignore", "ignore", "inherit"],
+    });
 
 let browser;
 let failed = false;
@@ -32,7 +39,7 @@ const cleanup = async () => {
 try {
   for (let i = 0; ; i++) {
     try {
-      if ((await fetch(`${base}/api/health`)).ok) break;
+      if ((await fetch(isStatic ? base : `${base}/api/health`)).ok) break;
     } catch {}
     if (i > 60) throw new Error("API did not start");
     await new Promise((r) => setTimeout(r, 250));

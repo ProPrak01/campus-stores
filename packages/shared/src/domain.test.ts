@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { seedState, dueStatus, type AppState } from "@campus/shared";
+import { seedState } from "./seed.js";
+import { dueStatus } from "./due.js";
+import type { AppState } from "./types.js";
 import * as d from "./domain.js";
 
 /** Assert that fn throws a DomainError with this status and a message matching re. */

@@ -1,4 +1,4 @@
-import { dueStatus } from "@campus/shared";
+import { dueStatus } from "./due.js";
 import type {
   AppState,
   DueOption,
@@ -7,7 +7,7 @@ import type {
   HandoverLine,
   Loan,
   PhaseIndex,
-} from "@campus/shared";
+} from "./types.js";
 
 /** An error whose message is written for the desk clerk and is safe to show. */
 export class DomainError extends Error {
