@@ -1,4 +1,4 @@
-import type { AppState } from "@campus/shared";
+import type { AppState, HandoverLine } from "@campus/shared";
 
 /** Shared fetch wrapper. Non-2xx responses throw with the server's error string. */
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -16,15 +16,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export interface HandoverSummary {
-  summary: { request: string; asset: string; holder: string; due: string; note: string }[];
+  summary: HandoverLine[];
 }
 
 export const api = {
-  /* ── live ── */
   getState: () => request<AppState>("/api/state"),
   reset: () => request<AppState>("/api/reset", { method: "POST" }),
 
-  /* ── planned ── */
   advancePhase: () =>
     request<AppState>("/api/phase/advance", { method: "POST" }),
 
@@ -34,7 +32,7 @@ export const api = {
       body: JSON.stringify(body),
     }),
 
-  issueKit: (body: { requestId: string; collectedBy: string; assetIds?: Record<string, string> }) =>
+  issueKit: (body: { requestId: string; collectedBy: string; dueLabel?: string; assetIds?: Record<string, string> }) =>
     request<AppState>("/api/issue-kit", {
       method: "POST",
       body: JSON.stringify(body),

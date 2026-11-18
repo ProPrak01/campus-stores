@@ -254,6 +254,18 @@ body > main {
   background: var(--warn);
   color: var(--warntxt);
 }
+#campus-stores .tag.overdue {
+  background: light-dark(#fde8e8, #3d2626);
+  color: light-dark(#8b1a1a, #f2a5a5);
+}
+#campus-stores .tag.soon {
+  background: var(--warn);
+  color: var(--warntxt);
+}
+#campus-stores button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
 
 /* ── Record cards ── */
 #campus-stores .record {
