@@ -1,16 +1,16 @@
 import { useState } from "react";
 import type { AppState } from "@campus/shared";
 import { api } from "../api";
+import type { Mutate } from "../lib/types";
 import { ReturnPanel } from "../components/ReturnPanel";
 import { DueChip } from "../components/DueChip";
 
 interface Props {
   state: AppState;
-  mutate: (fn: () => Promise<AppState>, msg?: string) => Promise<void>;
-  setStatus: (msg: string) => void;
+  mutate: Mutate;
 }
 
-export function LoanRegisterScreen({ state, mutate, setStatus }: Props) {
+export function LoanRegisterScreen({ state, mutate }: Props) {
   const [onlyOpen, setOnlyOpen] = useState(true);
   const [returnAssetId, setReturnAssetId] = useState<string | null>(null);
 
@@ -60,7 +60,7 @@ export function LoanRegisterScreen({ state, mutate, setStatus }: Props) {
                   {l.requestId} · {asset?.type ?? "Unknown"} · {l.holder} · Due {l.dueLabel}
                 </small>
               </div>
-              <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+              <div className="row-actions">
                 <DueChip state={state} loan={l} />
                 {l.returned ? (
                   <span className="tag">Returned{l.returnedBy ? ` by ${l.returnedBy}` : ""}</span>

@@ -375,9 +375,100 @@ body > main {
 /* ── Alert box ── */
 #campus-stores .alert-box {
   padding: 10px 13px;
-  margin: 10px 0;
+  margin: 10px 16px;
   border-radius: 6px;
   font-size: 13px;
+}
+#campus-stores .advance-prompt {
+  background: var(--memo);
+  color: var(--memotxt);
+  border: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+#campus-stores .alert-box:focus-visible {
+  outline: 3px solid var(--mark);
+  outline-offset: 2px;
+}
+
+/* ── Shared layout helpers ── */
+#campus-stores .row-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+#campus-stores .actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+#campus-stores .inline-form {
+  margin-top: 6px;
+}
+#campus-stores .inline-chip {
+  margin-left: 6px;
+}
+#campus-stores button.small {
+  font-size: 12px;
+}
+#campus-stores .note-warn {
+  color: var(--mark);
+  font-size: 13px;
+}
+#campus-stores .note-form {
+  margin-top: 14px;
+}
+#campus-stores .linked {
+  color: var(--sel);
+}
+#campus-stores .handover-card {
+  border-left-color: var(--mark);
+  margin-bottom: 12px;
+}
+#campus-stores .handover-line {
+  display: block;
+  margin-top: 8px;
+  max-width: 100%;
+  text-align: left;
+  background: transparent;
+  border-color: var(--memotxt);
+  color: var(--memotxt);
+  font-weight: 500;
+}
+
+/* ── Kit view extras ── */
+#campus-stores .kit-head {
+  margin-top: 12px;
+}
+#campus-stores .request-note {
+  margin-top: 6px;
+  font-style: italic;
+}
+#campus-stores .kit-summary:focus-visible,
+#campus-stores .kit-head h3:focus-visible,
+#campus-stores .page:focus-visible {
+  outline: 3px solid var(--mark);
+  outline-offset: 2px;
+}
+#campus-stores .page:focus {
+  outline: none;
+}
+#campus-stores .kit-notes {
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+#campus-stores .kit-notes p {
+  margin-top: 6px;
+}
+#campus-stores .kit-row {
+  border-top: 0;
+  padding: 6px 0;
 }
 #campus-stores .alert-box.error {
   background: light-dark(#fde8e8, #3d2626);

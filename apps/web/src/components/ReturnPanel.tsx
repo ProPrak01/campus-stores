@@ -29,7 +29,7 @@ export function ReturnPanel({ state, expected, onConfirm, onCancel }: Props) {
   const mismatch = picked && picked.assetId !== expected.assetId;
 
   return (
-    <div className="form" style={{ marginTop: "6px" }}>
+    <div className="form inline-form">
       <label className="full">
         <span>Which unit is in your hand? Read the ID on its label.</span>
         <select value={assetId} onChange={(e) => setAssetId(e.target.value)}>
@@ -53,12 +53,12 @@ export function ReturnPanel({ state, expected, onConfirm, onCancel }: Props) {
         </select>
       </label>
       {mismatch && picked && (
-        <p className="full" role="status" style={{ color: "var(--mark)" }}>
+        <p className="full note-warn" role="status">
           {picked.assetId} is not the unit on the line you opened ({expected.assetId}). Confirming closes slip L-
           {picked.num} on {picked.requestId}.
         </p>
       )}
-      <div className="full" style={{ display: "flex", gap: "8px" }}>
+      <div className="full actions">
         <button
           type="button"
           className="primary"

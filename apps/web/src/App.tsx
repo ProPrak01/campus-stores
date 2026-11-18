@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import type { AppState } from "@campus/shared";
 import { api } from "./api";
+import type { Mutate } from "./lib/types";
 import { Icon } from "./components/Icon";
 import { RequestsScreen } from "./screens/Requests";
 import { InventoryScreen } from "./screens/Inventory";
@@ -24,6 +25,7 @@ export function App() {
   const [alert, setAlert] = useState("");
   const [advancePrompt, setAdvancePrompt] = useState(false);
   const pageRef = useRef<HTMLElement>(null);
+  const alertRef = useRef<HTMLDivElement>(null);
 
   const load = useCallback(() => {
     api.getState().then(setState).catch((e: Error) => setError(e.message));
@@ -31,20 +33,24 @@ export function App() {
 
   useEffect(() => { load(); }, [load]);
 
-  /** Wrapper for any mutation: replace state from server response, show status. */
-  const mutate = useCallback(async (
-    fn: () => Promise<AppState>,
-    successMsg?: string,
-  ) => {
+  /** Run a mutation, replace state from the response, and report whether it worked. */
+  const mutate: Mutate = useCallback(async (fn, successMsg) => {
     try {
       const next = await fn();
       setState(next);
       setAlert("");
       if (successMsg) setStatus(successMsg);
+      return true;
     } catch (e: unknown) {
       setAlert(e instanceof Error ? e.message : "Something went wrong");
+      return false;
     }
   }, []);
+
+  // After an error, move focus to the alert so it is read out and easy to find.
+  useEffect(() => {
+    if (alert) alertRef.current?.focus();
+  }, [alert]);
 
   const handleRestart = useCallback(() => {
     mutate(() => api.reset(), "Shift restarted. All records restored.");
@@ -52,7 +58,7 @@ export function App() {
 
   const handleAdvance = useCallback(() => {
     if (!state) return;
-    // Check for open loans with no handover note in current phase
+    // Open loans and no handover note for this phase: ask first (does not block).
     const hasOpenLoans = state.loans.some((l) => !l.returned);
     const hasNoteThisPhase = state.notes.some((n) => n.phase === state.phase);
     if (hasOpenLoans && !hasNoteThisPhase) {
@@ -67,7 +73,7 @@ export function App() {
     mutate(() => api.advancePhase(), "Shift time updated.");
   }, [mutate]);
 
-  // Focus management: scroll page into view when tab changes
+  // Move focus to the page when the tab changes.
   useEffect(() => {
     pageRef.current?.focus();
   }, [tab]);
@@ -78,9 +84,13 @@ export function App() {
   const shift = state.shifts[state.phase];
   const hasNext = state.phase < 2;
 
+  // W5: from the second shift on, show what is still out and the latest handover note.
+  const openCount = state.loans.filter((l) => !l.returned).length;
+  const latestNote = state.notes.length ? state.notes[state.notes.length - 1] : undefined;
+  const showHandover = state.phase >= 1 && (openCount > 0 || latestNote);
+
   return (
     <div id="campus-stores">
-      {/* ── Header ── */}
       <header className="mast">
         <div className="brandblock">
           <div className="brandmark" aria-hidden="true">
@@ -97,12 +107,17 @@ export function App() {
         </div>
       </header>
 
-      {/* ── Shift banner ── */}
       {shift && (
         <aside className="shift">
           <div>
             <b>{shift.title}</b>
             <p>{shift.text}</p>
+            {showHandover && (
+              <button type="button" className="handover-line" onClick={() => setTab("Desk book")}>
+                {openCount} {openCount === 1 ? "item" : "items"} still out
+                {latestNote ? ` · latest note: ${latestNote.text}` : ""}
+              </button>
+            )}
           </div>
           {hasNext && (
             <button type="button" onClick={handleAdvance}>
@@ -112,35 +127,24 @@ export function App() {
         </aside>
       )}
 
-      {/* ── Advance prompt (non-blocking) ── */}
       {advancePrompt && (
-        <div className="alert-box" role="alert" style={{
-          margin: "0 16px",
-          background: "var(--memo)",
-          color: "var(--memotxt)",
-          border: "1px solid var(--line)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "8px",
-        }}>
+        <div className="alert-box advance-prompt" role="alert">
           <span>There are open loans and no handover note for this phase. Advance anyway?</span>
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div className="actions">
             <button type="button" className="primary" onClick={confirmAdvance}>Advance</button>
-            <button type="button" onClick={() => setAdvancePrompt(false)}>Write a note first</button>
+            <button type="button" onClick={() => { setAdvancePrompt(false); setTab("Desk book"); }}>
+              Write a note first
+            </button>
           </div>
         </div>
       )}
 
-      {/* ── Server errors, announced to screen readers ── */}
       {alert && (
-        <div className="alert-box error" role="alert" style={{ margin: "10px 16px" }}>
+        <div className="alert-box error" role="alert" ref={alertRef} tabIndex={-1}>
           {alert}
         </div>
       )}
 
-      {/* ── Shell: Nav + Page ── */}
       <div className="shell">
         <nav aria-label="Store records">
           {NAV_ITEMS.map(({ tab: t, icon }) => (
@@ -156,29 +160,14 @@ export function App() {
           ))}
         </nav>
 
-        <section
-          className="page"
-          aria-label="Selected register"
-          ref={pageRef}
-          tabIndex={-1}
-          style={{ outline: "none" }}
-        >
-          {tab === "Requests" && (
-            <RequestsScreen state={state} mutate={mutate} setStatus={setStatus} />
-          )}
-          {tab === "Inventory" && (
-            <InventoryScreen state={state} />
-          )}
-          {tab === "Loan register" && (
-            <LoanRegisterScreen state={state} mutate={mutate} setStatus={setStatus} />
-          )}
-          {tab === "Desk book" && (
-            <DeskBookScreen state={state} mutate={mutate} setStatus={setStatus} />
-          )}
+        <section className="page" aria-label="Selected register" ref={pageRef} tabIndex={-1}>
+          {tab === "Requests" && <RequestsScreen state={state} mutate={mutate} />}
+          {tab === "Inventory" && <InventoryScreen state={state} />}
+          {tab === "Loan register" && <LoanRegisterScreen state={state} mutate={mutate} />}
+          {tab === "Desk book" && <DeskBookScreen state={state} mutate={mutate} />}
         </section>
       </div>
 
-      {/* ── Status bar ── */}
       <div className="statusbar">
         <span role="status" aria-live="polite">{status}</span>
         <button type="button" onClick={handleRestart}>Restart sample shift</button>

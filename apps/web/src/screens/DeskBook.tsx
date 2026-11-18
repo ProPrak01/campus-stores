@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import type { AppState } from "@campus/shared";
 import { api } from "../api";
+import type { Mutate } from "../lib/types";
 import type { HandoverSummary } from "../api";
 
 interface Props {
   state: AppState;
-  mutate: (fn: () => Promise<AppState>, msg?: string) => Promise<void>;
-  setStatus: (msg: string) => void;
+  mutate: Mutate;
 }
 
 interface Entry {
@@ -38,7 +38,7 @@ function deskBookEntries(state: AppState): Entry[] {
   return [...messages, ...notes].sort((a, b) => a.phase - b.phase).reverse();
 }
 
-export function DeskBookScreen({ state, mutate, setStatus }: Props) {
+export function DeskBookScreen({ state, mutate }: Props) {
   const [noteText, setNoteText] = useState("");
   const [noteRequestId, setNoteRequestId] = useState("");
   const [handover, setHandover] = useState<HandoverSummary | null>(null);
@@ -74,14 +74,14 @@ export function DeskBookScreen({ state, mutate, setStatus }: Props) {
 
       {/* ── Generated handover summary (pinned at top) ── */}
       {handover && handover.summary.length > 0 && (
-        <div className="record" style={{ borderLeftColor: "var(--mark)", marginBottom: "12px" }}>
+        <div className="record handover-card">
           <small>Generated handover summary</small>
           <h3>Outstanding items</h3>
           {handover.summary.map((item) => (
             <p key={item.loanNum}>
               <strong>{item.assetId}</strong> · {item.requestId} ({item.club}) · with {item.holder} · Due {item.dueLabel}
-              {item.dueStatus === "overdue" && <span className="tag overdue" style={{ marginLeft: 6 }}>Overdue</span>}
-              {item.dueStatus === "due_soon" && <span className="tag soon" style={{ marginLeft: 6 }}>Due soon</span>}
+              {item.dueStatus === "overdue" && <span className="tag overdue inline-chip">Overdue</span>}
+              {item.dueStatus === "due_soon" && <span className="tag soon inline-chip">Due soon</span>}
               <br />
               <small>{item.nextStep}</small>
             </p>
@@ -96,13 +96,13 @@ export function DeskBookScreen({ state, mutate, setStatus }: Props) {
           <h3>{entry.author}</h3>
           <p>{entry.body}</p>
           {entry.requestId && (
-            <small style={{ color: "var(--sel)" }}>Linked to {entry.requestId}</small>
+            <small className="linked">Linked to {entry.requestId}</small>
           )}
         </article>
       ))}
 
       {/* ── Note form ── */}
-      <form onSubmit={handleAddNote} style={{ marginTop: "14px" }}>
+      <form onSubmit={handleAddNote} className="note-form">
         <div className="form">
           <label className="full">
             <span>Note for the next shift</span>

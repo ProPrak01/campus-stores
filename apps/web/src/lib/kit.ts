@@ -1,0 +1,7 @@
+import type { AppState, EquipmentRequest, Loan, Asset, RequestLine } from "@campus/shared";
+export type LineStatus = "Not issued" | "Out" | "Returned";
+export interface KitLine { line: RequestLine; loan: Loan | undefined; status: LineStatus; }
+export const getKitLines = (req: EquipmentRequest, loans: Loan[], assets: Asset[]): KitLine[] => req.lines.flatMap(l => Array.from({length:l.qty},(_,i)=>{const m=loans.filter(la=>la.requestId===req.id&&assets.find(a=>a.id===la.assetId)?.type===l.type)[i];return{line:l,loan:m,status:m?m.returned?"Returned":"Out":"Not issued"};}));
+export const buildSummary = (kit: KitLine[], assets: Asset[]): string => {const t=kit.length,r=kit.filter(k=>k.status==="Returned").length,o=kit.filter(k=>k.status==="Out");if(!t)return"No approved lines.";if(r===t)return`All ${t} items returned.`;const p=[r>0?`${r} of ${t} returned`:`${o.length} of ${t} out`];for(const k of o.filter(Boolean))if(k.loan){const a=assets.find(a=>a.id===k.loan!.assetId);p.push(`${a?`${a.type} (${a.id})`:"unit"} with ${k.loan.holder}`);}return p.join(" · ");};
+export const getSuggestedUnit = (type: string, assets: Asset[], loans: Loan[]): Asset | undefined => assets.find(a=>a.type===type&&!a.inRepair&&!loans.some(l=>l.assetId===a.id&&!l.returned));
+export const availableUnits = (type: string, assets: Asset[], loans: Loan[]): Asset[] => assets.filter(a=>a.type===type&&!a.inRepair&&!loans.some(l=>l.assetId===a.id&&!l.returned));
