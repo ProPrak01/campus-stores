@@ -1,125 +1,145 @@
-# Campus Stores: task checklist
+# Campus Stores: task checklist (final)
 
 ## 0. What this software is
 
-A static, no-build, vanilla JS single-page app (`index.html`, `app.js`, `styles.css`, inline Lucide icons). It simulates an equipment-lending desk (loan counter) at a campus media store. State lives in one object `s` and is saved to `localStorage` (`campus-stores.shift.v1`). Rendering is string-built HTML re-painted on every action.
+A static, no-build, vanilla JS single-page app: `index.html` (layout, brief, inline Lucide icons), `app.js` (sample data, state, rendering, events), `styles.css` (light/dark theme, container-query layouts for narrow screens, 44 px touch targets on coarse pointers). State is one object `s`, saved to `localStorage` key `campus-stores.shift.v1` and validated on restore. Every action re-renders the page with `innerHTML`.
 
-Screens: **Requests** (3 approved club forms), **Inventory** (8 physical units, status filter), **Loan register** (issue slips, return), **Desk book** (club messages and handover notes). A "Desk time" control moves through three phases: Fri 3:45 pm pickup, Fri 7:30 pm partial return, Sat 9:00 am morning handover.
+It simulates the loan counter of a campus media equipment desk. Screens:
+- **Requests:** 3 approved club forms (Film Society RQ-214, Debate Union RQ-209, Photo Circle RQ-217).
+- **Inventory:** 8 physical units with a status filter (On shelf / On loan / In repair).
+- **Loan register:** one issue slip per physical unit; "Record return" closes a slip.
+- **Desk book:** fixed club messages plus free-text handover notes.
 
-The README is a hiring exercise: "Would you keep this product?" Deliverables (from the in-app brief):
-1. One moment the product handles well, with evidence from the shift.
-2. One moment you would change, with evidence from the shift.
+A time control moves through three phases: Fri 3:45 pm pickup, Fri 7:30 pm partial return, Sat 9:00 am morning shift.
+
+The repo is a hiring exercise. The in-app brief asks: "Would you keep this product?" Deliverables:
+1. One moment the product handles well, with a specific action from the shift as evidence.
+2. One moment you would change, with evidence.
 3. A sketch or prototype of the change, walked through the same job.
-4. What you would keep, and one observation at a real counter that would show whether it helped.
-5. README in the fork pointing reviewers to the work and explaining the decision.
+4. What you would keep, and one observation at a real counter that would show whether the change helped.
+5. A README in the fork that points reviewers to the work and explains the decision.
 
-## 1. Findings from the shift (the evidence)
+## 1. Verified findings
 
-Handles well:
-- Issuing is guarded: it blocks units in repair (PR-06), units already on loan, equipment outside the approved request, and a second unit of a type whose approved quantity is already out.
-- Per-unit slips mean two identical adapters (AD-12, AD-15) are tracked separately.
-- State persists and is validated on restore.
+Each item below was checked against `app.js`.
 
-Breaks or hurts (candidates for "the one thing I would change"):
-- **No view of a request as a job.** To issue Film Society's kit, the clerk reads the Requests tab, then makes 3 separate slips, re-picking request, collector and due date each time. Nothing shows "3 approved, 2 issued, 1 missing".
-- **Partial return is invisible.** At 7:30 pm the register lists loose slips. Nothing says "RQ-214: projector and speaker back, adapter still out with Leela, due Sat 9 am".
-- **Custody is wrong after a handoff.** The adapter slip says "Kabir Sen", but Leela holds it. The only record is a Desk book message, which is unlinked to the slip.
-- **Collector authority is unchecked.** Isha filed the request; Kabir collects. The permission lives in a Desk book note on another tab. Leela is not on the request at all.
-- **Morning return is guesswork.** Two identical adapters exist. "Record return" does not ask which physical unit was handed back, so the wrong slip can be closed.
-- **Due dates are free-text strings** ("Fri 8 pm"). The adapter is late relative to the request's Fri 8 pm, but nothing flags overdue or records the agreed extension.
-- **Handover notes are free text, optional, and unpinned.** The time control advances without prompting for a handover. The next shift has to hunt through the Desk book.
-- **Inventory does not say who has a unit.**
+### Handles well
+- **Issue guardrails.** Saving a slip is blocked for a unit in repair (PR-06 never appears in the unit list), a unit already on loan, a type outside the approved request ("This equipment type is outside the approved request"), and a second unit of a type already out on the same request ("The approved quantity of this equipment type is already on loan").
+- **One slip per physical unit.** The two identical adapters (AD-12, AD-15) are tracked separately.
+- **Errors keep the form.** A blocked save writes to the status bar without repainting, so the clerk's selections survive.
+- **Saved state is validated** before it is restored.
 
-Small defects to fix on the way:
-- `esc()` is not applied to request fields and the unit/request text in `requestPage` and `head()` (safe today because the data is static, but a trap if it becomes editable).
-- Several `innerHTML` builders, so forms lose input on any repaint (typing in a note, then changing the filter, clears it).
-- `advance` ignores the "Browser storage unavailable" path message after `paint()`.
-- Time is phase-based, not a real clock, so overdue cannot be computed.
-- No keyboard focus management after repaint (focus is lost on every action).
+### Problems (evidence for "the moment I would change")
+- **The request is not a unit of work.** Issuing the Film Society kit means 3 separate slips. Each slip re-asks for request, collector and due date. Nothing shows "3 approved, 2 issued, 1 not yet issued".
+- **Authorization is not checked.** "Collected by" accepts any of the 5 people on every request. Isha filed RQ-214; her permission for Kabir lives only in a Desk book message on another tab. Leela is on no request.
+- **Due date is not tied to the request.** The clerk can pick any of 4 times. RQ-214 says "Fri 8 pm", but nothing stops "Sat noon" or prefills the request's time.
+- **Custody goes stale.** At 7:30 pm the adapter slip still says Kabir, but Leela holds it. The only record is a Desk book message that is not linked to the slip.
+- **The partial return is invisible.** The register shows loose slips. Nothing says "RQ-214: 2 of 3 back; adapter out with Leela, promised Sat 9 am".
+- **Returns don't confirm the unit.** "Record return" closes whichever slip you click. With two identical adapters, the morning clerk can close the wrong slip, and the app has no step that asks for the unit ID on the label.
+- **There is no overdue state.** Due dates are display strings. At 9 am the adapter is past RQ-214's Fri 8 pm return, and nothing flags it or records the agreed extension.
+- **Handover is optional free text.** Advancing time never prompts for a note, and notes are not linked to a request or a slip. The morning clerk has to rebuild the state from the Desk book and the register.
+- **Inventory doesn't show who holds a unit**, only "On loan".
+- **The time control has no guard.** Slips can be returned at 3:45 pm before anything happened, and time can advance with nothing issued. This is acceptable for a sample, but worth knowing.
 
-## 2. Chosen direction
+### Minor code issues (fix while working in the area, not headline findings)
+- `esc()` is skipped for request fields in `requestPage()` and for titles in `head()`. This is safe today only because the data is static.
+- Every action repaints with `innerHTML`, so keyboard focus jumps back to the top after each click.
+- `restore()` does not validate `filter`, `onlyOpen` or `editing`.
+- Error messages from a blocked save are not announced as errors (they reuse the polite status line).
 
-**Make the Request the unit of work.** Add a "Kit view" for each approved request showing every approved line (type, quantity), which units are issued, returned or outstanding, who holds them, and when each is due. Issue, return and handover happen from that view. This fixes the top four findings with one idea and keeps the existing per-unit slips underneath.
+### Checked and dropped
+- ~~"Storage-unavailable message is lost after advance"~~: `commit()` handles it for every action.
+- ~~"Forms lose input on repaint"~~: the only repaint triggers are clicks and the Inventory filter, which isn't on the same screen as a form. Errors don't repaint.
+- ~~"Mobile layout is missing"~~: container queries at 650 px and 420 px already exist, along with dark mode.
 
-## 3. Task checklist
+## 2. Decision
 
-### A. Setup and baseline
-- [ ] Run the full shift once as a clerk and write down each friction point with the exact click or decision (this is the evidence for the write-up).
-- [ ] Capture "before" screenshots of Requests, Loan register and Desk book at each phase.
-- [ ] Create a branch `kit-view` and keep commits small and readable (reviewers look at the final commit).
+**Make the approved request the unit of work.** Each request gets a kit view that shows every approved line, which unit went out, who holds it now, when it is due, and whether it came back. Issue, return and handover start from that view. Per-unit slips and the existing guardrails stay underneath.
+
+This single change covers the pickup (one confirm instead of three forms), the 7:30 pm partial return (outstanding line visible), and the 9:00 am handover (who has what, and which unit to expect).
+
+## 3. Checklist
+
+Every checkpoint ends with a commit and a push (see section 5).
+
+### A. Baseline and evidence
+- [ ] A1. Play the full shift as written. Log each friction point as "phase · screen · exact click · what went wrong" in `docs/evidence.md`.
+- [ ] A2. Capture "before" screenshots at each phase to `docs/before/`.
 
 ### B. Data model (`app.js`)
-- [ ] Add `qty` to request lines (type + quantity) instead of a flat `items` array of type names.
-- [ ] Add `authorized` collectors per request (Isha, Kabir). Allow adding a collector with a reason, recorded in the history.
-- [ ] Replace string due dates with sortable values (`dueAt`, plus a display label) tied to the phase clock.
-- [ ] Add `holder` to a loan (separate from `who` collected) and a `custody` history list (issued to X, passed to Y, returned by Z).
-- [ ] Add `returnedBy`, `returnedAt` and optional `condition` to a loan.
-- [ ] Bump `version` to 2 and write a migration or reset for old saved state; keep `restore()` validation strict.
+- [ ] B1. Request lines get `{ type, qty }`. Requests get `authorized` collectors (RQ-214: Isha Rao, Kabir Sen).
+- [ ] B2. Each phase gets a sortable timestamp. Due dates become `dueAt` plus a display label.
+- [ ] B3. A loan gets `holder` (separate from the collector) and a `history` list of events (issued, passed on, extended, returned).
+- [ ] B4. A loan gets `returnedBy` and `returnedAt`.
+- [ ] B5. Bump state `version` to 2. Old saves fall back to a fresh shift with a notice. `restore()` validates every field.
 
-### C. Kit view (the main change)
-- [ ] Request detail becomes a checklist: one row per approved line and quantity, with state Issued / Returned / Outstanding / Not yet issued.
-- [ ] Summary banner per request: "2 of 3 returned. Adapter outstanding with Leela Das, due Sat 9 am".
-- [ ] "Issue kit" action: pre-fills request, collector and due date, offers the suggested unit per line (skips repair, prefers on-shelf), and issues all lines in one confirm. The clerk can still swap a unit.
-- [ ] Per-line "Issue" for partial pickups.
-- [ ] Show the request note next to the issue action (the "USB-C-only laptop" note decides which adapter to hand over).
-- [ ] Request list shows a status chip per request (Not started, Out, Partly returned, Complete).
+### C. Kit view (core change)
+- [ ] C1. The request detail becomes a checklist with one row per approved line: Not issued / Out (unit, holder, due) / Returned.
+- [ ] C2. A summary line per request, for example "2 of 3 returned · USB-C → HDMI adapter (AD-12) with Leela Das, promised Sat 9 am".
+- [ ] C3. "Issue kit": collector and due date default from the request, a suggested on-shelf unit per line (never one in repair), the clerk can swap units, one confirm creates all slips.
+- [ ] C4. Per-line issue for partial pickups.
+- [ ] C5. Show the request note next to the issue action (the "USB-C-only laptop" note is why the adapter matters).
+- [ ] C6. Status chip on each row of the request list: Not started / Out / Partly returned / Complete.
 
 ### D. Collector and custody
-- [ ] Block issue to someone not authorized on the request, with an inline "Add as collector" action that asks for a short reason and is recorded.
-- [ ] "Passed to someone else" action on a loan (for Leela holding the adapter), keeping the original collector in the history.
-- [ ] Show the holder on slips, in Inventory ("On loan · Leela Das"), and in the kit view.
+- [ ] D1. Issue is limited to authorized collectors. "Add collector" asks who and why, and records the reason on the request.
+- [ ] D2. "Passed to someone else" on an open loan (Kabir → Leela) updates `holder` and adds to history.
+- [ ] D3. The holder appears on slips, in the kit view and in Inventory ("On loan · Leela Das").
 
 ### E. Returns
-- [ ] Return from the kit view or register with a unit-confirm step: "Which unit is in your hand?" (lists the units on loan for that type, so the AD-12 vs AD-15 mix-up is caught).
-- [ ] Support returning a unit that differs from the slip: flag it and re-point the slip rather than closing the wrong one.
-- [ ] Record who returned it and an optional condition note.
-- [ ] Mark a request Complete automatically when all lines are back, and show a short "all returned" confirmation.
+- [ ] E1. Return asks "Which unit is in your hand?" and lists the open units of that type with their IDs. If the unit doesn't match the clicked slip, the app shows that slip instead of closing the wrong one.
+- [ ] E2. Record who brought it back.
+- [ ] E3. The request turns Complete when every line is back, with a confirmation message.
 
-### F. Time and overdue
-- [ ] Give each phase a real timestamp and compute overdue from it.
-- [ ] Overdue and due-soon chips on loans and requests.
-- [ ] "Agree a new return time" on a loan, recorded in history (covers the Sat 9 am adapter).
+### F. Handover
+- [ ] F1. A generated handover summary from open loans (what, unit, holder, due, next step). The clerk can add free text on top.
+- [ ] F2. The latest handover is pinned in the Desk book and on the shift banner of the next phase.
+- [ ] F3. Advancing time with open loans and no handover shows a prompt. It does not block.
+- [ ] F4. Notes can link to a request; linked notes show in the kit view.
 
-### G. Handover
-- [ ] Generate a handover summary automatically from open loans (what is out, with whom, due when, what to do next); the clerk adds free text on top.
-- [ ] Pin the latest handover at the top of the Desk book and on the shift banner for the next phase.
-- [ ] Prompt (not block) when advancing time with open loans and no handover note.
-- [ ] Link notes to a request or loan so they show up in the kit view.
+### G. Due and overdue (phase-based)
+- [ ] G1. Overdue and due-soon chips computed from the phase timestamp, on loans and requests.
+- [ ] G2. "Agree a new return time" on a loan, recorded in history (Leela's Sat 9 am promise).
 
-### H. Quality and polish
-- [ ] Apply `esc()` consistently in every template; remove the string-concatenated HTML where it is easy to do.
-- [ ] Preserve form input, scroll position and focus across repaints.
-- [ ] Keyboard: logical tab order, visible focus, Enter/Escape in the issue flow.
-- [ ] `aria-live` messages for issue, return and errors; check color contrast on the new chips.
-- [ ] Mobile layout check at 375 px and 768 px.
-- [ ] Empty and error states (no available unit of a type, all units in repair).
-- [ ] Optional: undo for the last issue or return.
-- [ ] Optional: counter-friendly search box (type a unit ID or name to jump to its slip).
-- [ ] Verify no console errors, offline use from `file://`, and that "Restart sample shift" resets everything.
+### H. Quality
+- [ ] H1. `esc()` on every interpolated value.
+- [ ] H2. Restore focus to the triggering control (or the new section heading) after each repaint.
+- [ ] H3. Errors announced with `role="alert"`. New chips meet contrast in light and dark modes.
+- [ ] H4. Check at 375 px and desktop, light and dark. No console errors. Works from `file://`. "Restart sample shift" resets everything.
 
-### I. Write-up (the part that is graded)
-- [ ] Moment handled well: the issue guardrails (e.g. blocked PR-06 in repair, or a second adapter beyond the approved quantity).
-- [ ] Moment I would change: the partial return and handoff at 7:30 pm and 9:00 am, with the specific clicks.
-- [ ] Prototype walkthrough: the same Film Society job done start to finish in the kit view.
-- [ ] What I would keep from the original (per-unit slips, guardrails, desk book as the message channel).
-- [ ] One real-counter observation: for example, "Count how often a clerk opens the Desk book or the Requests tab while closing a return, and how many returns are recorded against the wrong unit, across one week of shifts."
-- [ ] Update `README.md` with a link to the work, screenshots and the decision explanation.
-- [ ] Final check: commit pushed to `myfork`, copy the commit URL, submit the Google Form with roll number and email.
+### I. Write-up (graded)
+- [ ] I1. Moment handled well: the guardrails, for example trying to issue a second adapter on RQ-214 or looking for PR-06.
+- [ ] I2. Moment to change: 7:30 pm and 9:00 am, with the exact clicks from `docs/evidence.md`.
+- [ ] I3. Walkthrough: the same Film Society job done start to finish with the kit view, with "after" screenshots.
+- [ ] I4. What I kept: per-unit slips, issue guardrails, the Desk book as the club message channel, no-build offline app.
+- [ ] I5. Counter observation: over a week of real shifts, count returns closed against the wrong unit and how often the clerk leaves the return screen to check the Desk book or Requests. Compare before and after.
+- [ ] I6. Update `README.md`: link to the work, the decision, how to see it (which phase and which buttons).
+- [ ] I7. Push, copy the final commit URL `https://github.com/ProPrak01/campus-stores/commit/<sha>`, submit the Google Form (roll number and email only in the form).
 
-## 4. Suggested order
+### Stretch (only after A to I are done)
+- [ ] S1. Undo for the last issue or return.
+- [ ] S2. Search by unit ID or person.
+- [ ] S3. Printable handover card.
 
-1. A (baseline) then I's evidence notes.
-2. B + C (kit view). This is the core and the demo.
-3. E + D (returns, custody), because they fix the 7:30 pm and 9:00 am moments.
-4. G (handover), then F (time).
-5. H (polish), then the rest of I.
+## 4. Order
+
+A → B → C → E → D → F → G → H → I. Stretch last.
+
+C and E carry the argument. If time runs short, cut G and the stretch items, never the write-up.
 
 ## 5. Working habit
 
-After every checkpoint (each checked item or small group of items): run a quick check, `git add` the specific files, commit with a clear message, and `git push myfork main`. No checkpoint is done until it is pushed.
+After every checkpoint (one item, or a small group in the same area):
+1. Check: `node --check app.js` and a manual run through the affected phase in the browser.
+2. Stage the specific files with `git add <files>`.
+3. Commit with a clear message, for example `C1: kit view checklist for approved requests`.
+4. Push with `git push myfork main`.
+
+A checkpoint is not done until it is pushed. Tick the box in this file in the same commit.
 
 ## 6. Scope guardrails
 
-- Stay with no build tools and no dependencies. The app must still open from `index.html`.
-- Do not rewrite everything. Keep the four screens, change the model and the request view.
-- Finish B to E well before F to H. A complete core beats many half features.
+- No build tools and no dependencies. The app must still open directly from `index.html`.
+- Keep the four screens and the visual style. Change the model and the request view; don't rewrite the app.
+- Work on `main` of the fork, since the submission is a commit URL.
+- Keep the sample story intact (Kabir, Leela, the adapter, Tara's microphone). The prototype must replay the same job.
