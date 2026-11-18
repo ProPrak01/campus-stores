@@ -10,6 +10,17 @@ import { getState, resetState, setState } from "./store.js";
 
 const app = Fastify({ logger: { level: "info" } });
 
+// Buttons like "advance" and "restart" POST with a JSON content type and no body. Accept that as {}.
+app.addContentTypeParser("application/json", { parseAs: "string" }, (_req, body, done) => {
+  const text = String(body).trim();
+  if (!text) return done(null, {});
+  try {
+    done(null, JSON.parse(text));
+  } catch {
+    done(Object.assign(new Error("Invalid JSON"), { statusCode: 400 }), undefined);
+  }
+});
+
 app.setErrorHandler((err, _req, reply) => {
   if (err instanceof DomainError) return reply.status(err.status).send({ error: err.message });
   const status = (err as { statusCode?: number }).statusCode;
