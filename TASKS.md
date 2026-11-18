@@ -74,35 +74,35 @@ Every checkpoint ends with a commit and a push (see section 5).
 - [ ] B5. Bump state `version` to 2. Old saves fall back to a fresh shift with a notice. `restore()` validates every field.
 
 ### C. Kit view (core change)
-- [ ] C1. The request detail becomes a checklist with one row per approved line: Not issued / Out (unit, holder, due) / Returned.
-- [ ] C2. A summary line per request, for example "2 of 3 returned · USB-C → HDMI adapter (AD-12) with Leela Das, promised Sat 9 am".
-- [ ] C3. "Issue kit": collector and due date default from the request, a suggested on-shelf unit per line (never one in repair), the clerk can swap units, one confirm creates all slips.
-- [ ] C4. Per-line issue for partial pickups.
-- [ ] C5. Show the request note next to the issue action (the "USB-C-only laptop" note is why the adapter matters).
-- [ ] C6. Status chip on each row of the request list: Not started / Out / Partly returned / Complete.
+- [x] C1. The request detail becomes a checklist with one row per approved line: Not issued / Out (unit, holder, due) / Returned.
+- [x] C2. A summary line per request, for example "2 of 3 returned · USB-C → HDMI adapter (AD-12) with Leela Das, promised Sat 9 am".
+- [x] C3. "Issue kit": collector and due date default from the request, a suggested on-shelf unit per line (never one in repair), the clerk can swap units, one confirm creates all slips.
+- [x] C4. Per-line issue for partial pickups.
+- [x] C5. Show the request note next to the issue action (the "USB-C-only laptop" note is why the adapter matters).
+- [x] C6. Status chip on each row of the request list: Not started / Out / Partly returned / Complete.
 
 ### D. Collector and custody
 - [ ] D1. Issue is limited to authorized collectors. "Add collector" asks who and why, and records the reason on the request.
-- [ ] D2. "Passed to someone else" on an open loan (Kabir → Leela) updates `holder` and adds to history.
-- [ ] D3. The holder appears on slips, in the kit view and in Inventory ("On loan · Leela Das").
+- [x] D2. "Passed to someone else" on an open loan (Kabir → Leela) updates `holder` and adds to history.
+- [x] D3. The holder appears on slips, in the kit view and in Inventory ("On loan · Leela Das").
 
 ### E. Returns
-- [ ] E1. Return asks "Which unit is in your hand?" and lists the open units of that type with their IDs. If the unit doesn't match the clicked slip, the app shows that slip instead of closing the wrong one.
-- [ ] E2. Record who brought it back.
-- [ ] E3. The request turns Complete when every line is back, with a confirmation message.
+- [x] E1. Return asks "Which unit is in your hand?" and lists the open units of that type with their IDs. If the unit doesn't match the clicked slip, the app shows that slip instead of closing the wrong one.
+- [x] E2. Record who brought it back.
+- [x] E3. The request turns Complete when every line is back, with a confirmation message.
 
 ### F. Handover
-- [ ] F1. A generated handover summary from open loans (what, unit, holder, due, next step). The clerk can add free text on top.
+- [x] F1. A generated handover summary from open loans (what, unit, holder, due, next step). The clerk can add free text on top.
 - [ ] F2. The latest handover is pinned in the Desk book and on the shift banner of the next phase.
-- [ ] F3. Advancing time with open loans and no handover shows a prompt. It does not block.
+- [x] F3. Advancing time with open loans and no handover shows a prompt. It does not block.
 - [ ] F4. Notes can link to a request; linked notes show in the kit view.
 
 ### G. Due and overdue (phase-based)
-- [ ] G1. Overdue and due-soon chips computed from the phase timestamp, on loans and requests.
-- [ ] G2. "Agree a new return time" on a loan, recorded in history (Leela's Sat 9 am promise).
+- [x] G1. Overdue and due-soon chips computed from the phase timestamp, on loans and requests.
+- [x] G2. "Agree a new return time" on a loan, recorded in history (Leela's Sat 9 am promise).
 
 ### H. Quality
-- [ ] H1. `esc()` on every interpolated value.
+- [x] H1. `esc()` on every interpolated value.
 - [ ] H2. Restore focus to the triggering control (or the new section heading) after each repaint.
 - [ ] H3. Errors announced with `role="alert"`. New chips meet contrast in light and dark modes.
 - [ ] H4. Check at 375 px and desktop, light and dark. No console errors. Works from `file://`. "Restart sample shift" resets everything.
@@ -123,9 +123,12 @@ Every checkpoint ends with a commit and a push (see section 5).
 
 ### Progress log
 
-- Backend done and pushed: issue, issue-kit, return by unit, pass-on, extend, collectors, notes, handover summary, phase advance, due and overdue status from the desk clock (`dueStatus` in `packages/shared`), return times chosen from a fixed list. See `docs/API.md`.
-- Backend gaps: B5 uses a field-presence check on the saved file instead of a version number.
-- Frontend (C, E, F, G, H screens) is owned by the other agent. Items stay unticked until the UI is playable.
+- Stack: TypeScript monorepo. `apps/web` (React, Vite), `apps/api` (Fastify), `packages/shared` (types, seed, `dueStatus`).
+- Backend: all endpoints in `docs/API.md` are live. Club messages moved into state.
+- Frontend: kit view, issue kit, return by unit ID (`ReturnPanel`), pass-on, new return time, history, overdue chips, generated handover, advance prompt.
+- Checks: `npm test` (14 domain tests), `npm run e2e` (full Film Society story in Chrome, 11 steps).
+- In progress with the frontend agent: `docs/FRONTEND_ROUND2.md` (W1 to W10: favicon, collector must be chosen, authority and notes in the kit view, banner handover, focus and keyboard, KitView split, visual check). That covers D1, F2, F4, H2, H3, H4.
+- Left for this agent: A1/A2 (legacy evidence and "before" screenshots), I1 to I7 (README write-up).
 
 ## 4. Order
 
